@@ -3,7 +3,8 @@
 # Objective
 1. To make a smart contract with 2-3 functions
 2. To Show the values of functions in frontend of the application.
-![Screenshot (102)](https://github.com/Ishi181/Ishichal.sol/assets/139246938/5c03fe08-8833-4a67-b0e2-44a00622aa62)
+![Screenshot 2024-08-23 105950](https://github.com/user-attachments/assets/97fd06ba-7f9b-4e8f-9037-16d9efc9bcd6)
+
 
 
 # Description 
@@ -24,7 +25,8 @@ Here, i implemented many functions in frontend along with values of state variab
 2. Showing Owner Address.
 3. Showing Contract Balance.
 4. Increasing the balance by entering the certain amount.
-![Screenshot (103)](https://github.com/Ishi181/Ishichal.sol/assets/139246938/7b70850d-f55a-4341-afc4-17da0aad1c9b)
+![Screenshot 2024-08-23 110025](https://github.com/user-attachments/assets/8f243f21-1446-4456-b6c2-3087c0bde412)
+
 
 
 # Executing Program
