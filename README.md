@@ -18,11 +18,12 @@ Typically at http://localhost:3000/
 this code we are running on the online Solidity IDE that is https://remix.ethereum.org/ here we'll perform the code. as we are on the remix website just by clicking on th start coding we'll able to do coding in Solidity.
 
 ## Implementation
-Here, i implemented many functions in frontend along with values of state variables.
-1. Showing Account Address.
-2. Showing Owner Address.
-3. Showing Contract Balance.
-4. Increasing the balance by entering the certain amount.
+### Features
+* Owner-controlled friend management: Only the contract owner can add or remove friends.
+* Social score: The social score is a count of how many friends the owner currently has.
+* Friends list management: Functions to add and remove friends, with automatic list cleanup after a removal.
+* Event emission: Events are emitted whenever friends are added or removed, enabling off-chain applications to track changes.
+* Frontend support: The contract includes getter functions to retrieve key state variables, which can be displayed on a frontend interface.
 ![image](https://github.com/user-attachments/assets/d1961533-0a1b-4e3a-9223-284824a2e7a4)
 
 # Executing Program
