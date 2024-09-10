@@ -1,11 +1,9 @@
-# Metacrafters ATM!
+# SocialMedia Smart Contract
 
 # Objective
 1. To make a smart contract with 2-3 functions
 2. To Show the values of functions in frontend of the application.
-![Screenshot 2024-08-23 105950](https://github.com/user-attachments/assets/97fd06ba-7f9b-4e8f-9037-16d9efc9bcd6)
-
-
+![image](https://github.com/user-attachments/assets/8eaef8db-07f1-4ce2-9da9-d76a45e6d399)
 
 # Description 
 After cloning the github, you will want to do the following to get the code running on your computer.
@@ -25,124 +23,153 @@ Here, i implemented many functions in frontend along with values of state variab
 2. Showing Owner Address.
 3. Showing Contract Balance.
 4. Increasing the balance by entering the certain amount.
-![Screenshot 2024-08-23 110025](https://github.com/user-attachments/assets/8f243f21-1446-4456-b6c2-3087c0bde412)
-
-
+![image](https://github.com/user-attachments/assets/d1961533-0a1b-4e3a-9223-284824a2e7a4)
 
 # Executing Program
 ```
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.9;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.10;
 
-//import "hardhat/console.sol";
+//contract to show 4 state variables value on frontend.
 
-contract Assessment {
-    address payable public owner;
-    uint256 public balance;
+error AlreadyInFriendList();
 
-    event Deposit(uint256 amount);
-    event Withdraw(uint256 amount);
-    event BalanceIncreased(uint256 amount);
+contract SocialMedia {
+    uint32 private socialScore;
+    uint256 private totalFriendsEver;
+    address private immutable owner;
+    uint32 private removeFriends;
+    mapping(address => bool) private isInFriendList;
 
-    constructor(uint initBalance) payable {
-        owner = payable(msg.sender);
-        balance = initBalance;
+    address[] private friendList;
+
+    event AddFriend(address indexed newFriend, uint indexed friendNumber);
+    event RemoveFriend(address indexed frindAddress, uint indexed noOfFriend);
+
+    // For Better Gas Optimization
+    modifier onlyOwner() {
+        _onlyOwner();
+        _;
     }
 
-    function getBalance() public view returns (uint256) {
-        return balance;
+    function _onlyOwner() internal view {
+        require(msg.sender == owner, "You are not the Owner");
     }
 
-    function deposit(uint256 _amount) public payable {
-        uint _previousBalance = balance;
-
-        // make sure this is the owner
-        require(msg.sender == owner, "You are not the owner of this account");
-
-        // perform transaction
-        balance += _amount;
-
-        // assert transaction completed successfully
-        assert(balance == _previousBalance + _amount);
-
-        // emit the event
-        emit Deposit(_amount);
+    constructor() {
+        owner = msg.sender;
     }
 
-    // custom error
-    error InsufficientBalance(uint256 balance, uint256 withdrawAmount);
+    function showFriendList() external view returns (address[] memory) {
+        uint l = friendList.length;
+        uint TotalFriendsRemaining = totalFriendsEver - removeFriends;
+        uint index = 0;
 
-    function withdraw(uint256 _withdrawAmount) public {
-        require(msg.sender == owner, "You are not the owner of this account");
-        uint _previousBalance = balance;
-        if (balance < _withdrawAmount) {
-            revert InsufficientBalance({
-                balance: balance,
-                withdrawAmount: _withdrawAmount
-            });
+        address[] memory friends = new address[](
+            TotalFriendsRemaining < 1 ? 0 : TotalFriendsRemaining
+        );
+
+        for (uint i = 0; i < l; i++) {
+            address val = friendList[i];
+            if (val != address(0)) {
+                friends[index] = val;
+                index++;
+            }
+        }
+        return friends;
+    }
+
+    function _correctFriendList() internal returns (address[] memory) {
+        uint l = friendList.length;
+        uint index = 0;
+
+        for (uint i = 0; i < l; i++) {
+            address val = friendList[i];
+            if (val != address(0)) {
+                friendList[index] = val;
+                index++;
+            }
         }
 
-        // withdraw the given amount
-        balance -= _withdrawAmount;
-
-        // assert the balance is correct
-        assert(balance == (_previousBalance - _withdrawAmount));
-
-        // emit the event
-        emit Withdraw(_withdrawAmount);
+        while (l > index) {
+            friendList.pop();
+            index++;
+        }
+        return friendList;
     }
 
-    function getAddres() external view returns (address) {
-        return (address(this));
+    function totalFriendsEverrr() external view returns (uint) {
+        return totalFriendsEver;
     }
 
-    function viewOwner() public view returns (address) {
-        return owner;
+    function addFriends(address _address) external onlyOwner {
+        if (isInFriendList[_address]) {
+            revert AlreadyInFriendList();
+        }
+        friendList.push(_address);
+        isInFriendList[_address] = true;
+        socialScore++;
+        totalFriendsEver++;
+
+        emit AddFriend(_address, socialScore);
     }
 
-    function increaseBalance(uint256 _amount) public {
+    function removeFriendsFromList(uint index) external onlyOwner {
+        address val = friendList[index];
+        isInFriendList[val] = false;
+        delete friendList[index];
+        removeFriends++;
+        socialScore--;
+        emit RemoveFriend(val, removeFriends);
+        _correctFriendList();
+    }
 
-        balance += _amount;
+    function showAddress() external view returns (address) {
+        return address(this);
     }
 
     function showBalance() external view returns (uint) {
         return address(this).balance;
+    }
+
+    function showSocialScore() external view returns (uint) {
+        return socialScore;
+    }
+
+    function noOfRemovedFriend() external view returns (uint) {
+        return removeFriends;
+    }
+
+    function getOwner() external view returns (address) {
+        return owner;
     }
 }
 ```
 To compile the code, click on the "Solidity Compiler" tab in the left-hand sidebar. Make sure the "Compiler" option is set to "0.8.9" (or another compatible version), and then click on the ("Compile "the name of the file" ") for ex. comple first.sol button. Once the code is compiled, you can deploy the contract by clicking on the "Deploy & Run Transactions" tab in the left-hand sidebar. Select the "Assessment.sol" contract from the dropdown menu, and then click on the "Deploy" button. then u can see a the below of the option ' Deployed/Unpinned Contracts ' expand it and balances mint burn etc and now u can see our code is ready to run .
 
 # Program Explanation
-```
-function getAddres() external view returns (address) {
-        return (address(this));
-    }
-```
-getAddres() external view returns (address): Returns the address of the contract itself.
 
-```
-    function viewOwner() public view returns (address) {
-        return owner;
-    }
-```
-viewOwner() public view returns (address): Returns the address of the contract owner.
+```showFriendList():``` Returns an array of the current friends. This list excludes removed friends.
 
-```
-    function increaseBalance(uint256 _amount) public {
-        balance += _amount;
-    }
-```
-    increaseBalance(uint256 _amount) public: Increases the balance by _amount
+```totalFriendsEverrr(): ```Returns the total number of friends ever added, including those who have been removed.
 
-```
-    function showBalance() external view returns (uint) {
-        return address(this).balance;
-    }
-```
-showBalance() external view returns (uint): Returns the contract's balance in terms of Ether. This is the balance held by the contract address, not the balance variable.
+```addFriends(address _address): ```Adds a friend to the list. Only the owner can call this function. If the address is already in the friend list, the transaction will be reverted with the custom error AlreadyInFriendList.
+
+```removeFriendsFromList(uint index):``` Removes a friend from the list based on their position in the friendList array. Only the owner can call this function. After removing a friend, the list is corrected to remove gaps.
+
+```showAddress():``` Returns the contract’s address.
+
+```showBalance(): ```Returns the contract's balance (useful for interacting with the contract financially).
+
+```showSocialScore():``` Returns the current social score of the owner, which increases or decreases as friends are added or removed.
+
+```noOfRemovedFriend():``` Returns the number of friends who have been removed from the list.
+
+```getOwner(): ```Returns the address of the contract owner.
+
 
 # Authors
-Contributed by name : Ishi Singla Email id: ujjwala622@gmail.com
+Contributed by name : Ujjwala Email id: ujjwala622@gmail.com
 
 # License
 This project is licensed under the UNLICENSED - see the LICENSE.md file for details
