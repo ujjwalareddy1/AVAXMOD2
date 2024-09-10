@@ -170,10 +170,11 @@ To compile the code, click on the "Solidity Compiler" tab in the left-hand sideb
 
 
 # Authors
-Contributed by name : Ujjwala Email id: ujjwala622@gmail.com
+* Contributed by name : Ujjwala 
+* Email id: ujjwala622@gmail.com
 
 # License
-This project is licensed under the UNLICENSED - see the LICENSE.md file for details
+This project is licensed under the MIT - see the LICENSE.md file for details
 
 
 
