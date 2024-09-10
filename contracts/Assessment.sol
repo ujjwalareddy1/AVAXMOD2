@@ -1,78 +1,117 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.9;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.10;
 
-//import "hardhat/console.sol";
+//contract to show 4 state variables value on frontend.
 
-contract Assessment {
-    address payable public owner;
-    uint256 public balance;
+error AlreadyInFriendList();
 
-    event Deposit(uint256 amount);
-    event Withdraw(uint256 amount);
-    event BalanceIncreased(uint256 amount);
+contract SocialMedia {
+    uint32 private socialScore;
+    uint256 private totalFriendsEver;
+    address private immutable owner;
+    uint32 private removeFriends;
+    mapping(address => bool) private isInFriendList;
 
-    constructor(uint initBalance) payable {
-        owner = payable(msg.sender);
-        balance = initBalance;
+    address[] private friendList;
+
+    event AddFriend(address indexed newFriend, uint indexed friendNumber);
+    event RemoveFriend(address indexed frindAddress, uint indexed noOfFriend);
+
+    // For Better Gas Optimization
+    modifier onlyOwner() {
+        _onlyOwner();
+        _;
     }
 
-    function getBalance() public view returns (uint256) {
-        return balance;
+    function _onlyOwner() internal view {
+        require(msg.sender == owner, "You are not the Owner");
     }
 
-    function deposit(uint256 _amount) public payable {
-        uint _previousBalance = balance;
-
-        // make sure this is the owner
-        require(msg.sender == owner, "You are not the owner of this account");
-
-        // perform transaction
-        balance += _amount;
-
-        // assert transaction completed successfully
-        assert(balance == _previousBalance + _amount);
-
-        // emit the event
-        emit Deposit(_amount);
+    constructor() {
+        owner = msg.sender;
     }
 
-    // custom error
-    error InsufficientBalance(uint256 balance, uint256 withdrawAmount);
+    function showFriendList() external view returns (address[] memory) {
+        uint l = friendList.length;
+        uint TotalFriendsRemaining = totalFriendsEver - removeFriends;
+        uint index = 0;
 
-    function withdraw(uint256 _withdrawAmount) public {
-        require(msg.sender == owner, "You are not the owner of this account");
-        uint _previousBalance = balance;
-        if (balance < _withdrawAmount) {
-            revert InsufficientBalance({
-                balance: balance,
-                withdrawAmount: _withdrawAmount
-            });
+        address[] memory friends = new address[](
+            TotalFriendsRemaining < 1 ? 0 : TotalFriendsRemaining
+        );
+
+        for (uint i = 0; i < l; i++) {
+            address val = friendList[i];
+            if (val != address(0)) {
+                friends[index] = val;
+                index++;
+            }
+        }
+        return friends;
+    }
+
+    function _correctFriendList() internal returns (address[] memory) {
+        uint l = friendList.length;
+        uint index = 0;
+
+        for (uint i = 0; i < l; i++) {
+            address val = friendList[i];
+            if (val != address(0)) {
+                friendList[index] = val;
+                index++;
+            }
         }
 
-        // withdraw the given amount
-        balance -= _withdrawAmount;
-
-        // assert the balance is correct
-        assert(balance == (_previousBalance - _withdrawAmount));
-
-        // emit the event
-        emit Withdraw(_withdrawAmount);
+        while (l > index) {
+            friendList.pop();
+            index++;
+        }
+        return friendList;
     }
 
-    function getAddres() external view returns (address) {
-        return (address(this));
+    function totalFriendsEverrr() external view returns (uint) {
+        return totalFriendsEver;
     }
 
-    function viewOwner() public view returns (address) {
-        return owner;
+    function addFriends(address _address) external onlyOwner {
+        if (isInFriendList[_address]) {
+            revert AlreadyInFriendList();
+        }
+        friendList.push(_address);
+        isInFriendList[_address] = true;
+        socialScore++;
+        totalFriendsEver++;
+
+        emit AddFriend(_address, socialScore);
     }
 
-    function increaseBalance(uint256 _amount) public {
+    function removeFriendsFromList(uint index) external onlyOwner {
+        address val = friendList[index];
+        isInFriendList[val] = false;
+        delete friendList[index];
+        removeFriends++;
+        socialScore--;
+        emit RemoveFriend(val, removeFriends);
+        _correctFriendList();
+    }
 
-        balance += _amount;
+    function showAddress() external view returns (address) {
+        return address(this);
     }
 
     function showBalance() external view returns (uint) {
         return address(this).balance;
+    }
+
+    function showSocialScore() external view returns (uint) {
+        return socialScore;
+    }
+
+    function noOfRemovedFriend() external view returns (uint) {
+        return removeFriends;
+    }
+
+    function getOwner() external view returns (address) {
+        return owner;
     }
 }
